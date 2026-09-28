@@ -23,10 +23,10 @@ public class CmsBackendApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(CmsBackendApplication.class);
 
-    @Value("${admin.default.username:cms_admin_7Xq9vL2mR8kT5434}")
+    @Value("${admin.default.username:${ADMIN_USERNAME:}}")
     private String adminUsername;
 
-    @Value("${admin.default.password:V7!qR2#nL9@xT4$kPmZ6343jwffs45879hsdsd&wC3}")
+    @Value("${admin.default.password:${ADMIN_PASSWORD:}}")
     private String adminPassword;
 
     public static void main(String[] args) {
@@ -40,18 +40,25 @@ public class CmsBackendApplication {
             AboutRepository aboutRepository,
             PasswordEncoder passwordEncoder) {
         return args -> {
-            // 1. Ensure configured admin user exists with requested password
-            User admin = userRepository.findByUsername(adminUsername).orElse(null);
-            if (admin == null) {
-                admin = new User();
-                admin.setUsername(adminUsername);
-                admin.setPassword(passwordEncoder.encode(adminPassword));
-                userRepository.save(admin);
-                logger.info(">>> [INIT] Created admin account: Username='{}'", adminUsername);
-            } else {
-                admin.setPassword(passwordEncoder.encode(adminPassword));
-                userRepository.save(admin);
-                logger.info(">>> [INIT] Updated admin account '{}' with configured password.", adminUsername);
+            // 1. Ensure configured admin user exists if credentials are provided in environment
+            if (adminUsername != null && !adminUsername.trim().isEmpty() &&
+                adminPassword != null && !adminPassword.trim().isEmpty()) {
+
+                String cleanUsername = adminUsername.trim();
+                String cleanPassword = adminPassword.trim();
+
+                User admin = userRepository.findByUsername(cleanUsername).orElse(null);
+                if (admin == null) {
+                    admin = new User();
+                    admin.setUsername(cleanUsername);
+                    admin.setPassword(passwordEncoder.encode(cleanPassword));
+                    userRepository.save(admin);
+                    logger.info(">>> [INIT] Created admin account: Username='{}'", cleanUsername);
+                } else {
+                    admin.setPassword(passwordEncoder.encode(cleanPassword));
+                    userRepository.save(admin);
+                    logger.info(">>> [INIT] Synchronized admin password for: '{}'", cleanUsername);
+                }
             }
 
             // 2. Sanitize any existing corrupted image URLs in Projects
