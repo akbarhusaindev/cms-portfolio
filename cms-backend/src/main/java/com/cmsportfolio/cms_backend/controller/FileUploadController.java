@@ -20,7 +20,7 @@ public class FileUploadController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    @PostMapping({"/api/upload/image", "/api/upload", "/api/images/upload"})
+    @PostMapping({"/api/upload/image", "/api/upload", "/api/images/upload", "/upload/image", "/upload", "/images/upload"})
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Please select a file to upload"));

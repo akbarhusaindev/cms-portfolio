@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/experience")
+@RequestMapping({"/api/experience", "/experience"})
 @CrossOrigin(origins = "*")
 public class ExperienceController {
 
