@@ -13,4 +13,21 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Intercept 401 and 403 responses to clear invalid/expired token and prompt login
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const isLoginRequest = error.config?.url?.includes('/auth/login');
+    if ((error.response?.status === 401 || error.response?.status === 403) && !isLoginRequest) {
+      console.warn('Authentication expired or forbidden. Clearing token.');
+      localStorage.removeItem('admin_token');
+      // If we are currently in dashboard, redirect to login page
+      if (window.location.pathname.startsWith('/dashboard')) {
+        window.location.href = '/';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default API;

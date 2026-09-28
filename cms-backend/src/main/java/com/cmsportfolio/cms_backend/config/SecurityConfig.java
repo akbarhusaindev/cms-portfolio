@@ -34,6 +34,8 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+                        // Permit all OPTIONS requests for CORS preflights
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Login/Register
                         .requestMatchers("/api/auth/**").permitAll()
@@ -48,10 +50,10 @@ public class SecurityConfig {
                         // Uploaded files can be viewed publicly
                         .requestMatchers(HttpMethod.GET, "/api/upload/**").permitAll()
 
-                        // Other GET APIs are public
+                        // All GET APIs are public for portfolio display
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
 
-                        // Everything else requires JWT
+                        // Everything else (POST/PUT/DELETE for content management) requires valid JWT
                         .anyRequest().authenticated()
                 );
 
