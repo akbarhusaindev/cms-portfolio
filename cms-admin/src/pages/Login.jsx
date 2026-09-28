@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import API from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User as UserIcon, AlertCircle, Loader2 } from 'lucide-react';
@@ -9,6 +9,10 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.removeItem('admin_token');
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
