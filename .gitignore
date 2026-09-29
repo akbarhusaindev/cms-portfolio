@@ -1,0 +1,17 @@
+# Environment variables & local secrets
+.env
+.env.*
+!.env.example
+*.env
+
+# Uploads & temporary artifacts
+uploads/
+cms-backend/uploads/
+*.pdf
+image.png
+
+# OS & IDE metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
