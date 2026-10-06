@@ -23,15 +23,18 @@ public class SkillController {
 
     @PostMapping
     public Skill createSkill(@RequestBody Skill skill) {
+        if (skill.getName() != null) skill.setName(skill.getName().trim());
+        if (skill.getCategory() != null) skill.setCategory(skill.getCategory().trim());
+        if (skill.getProficiency() != null) skill.setProficiency(skill.getProficiency().trim());
         return skillRepository.save(skill);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Skill> updateSkill(@PathVariable Long id, @RequestBody Skill details) {
         Skill skill = skillRepository.findById(id).orElseThrow(() -> new RuntimeException("Skill not found"));
-        skill.setName(details.getName());
-        skill.setCategory(details.getCategory());
-        skill.setProficiency(details.getProficiency());
+        if (details.getName() != null) skill.setName(details.getName().trim());
+        if (details.getCategory() != null) skill.setCategory(details.getCategory().trim());
+        if (details.getProficiency() != null) skill.setProficiency(details.getProficiency().trim());
         return ResponseEntity.ok(skillRepository.save(skill));
     }
 

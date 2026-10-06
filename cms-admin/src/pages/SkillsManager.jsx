@@ -20,13 +20,28 @@ export default function SkillsManager() {
     }
   };
 
+  // Unique existing categories for suggestions and quick-selection
+  const existingCategories = Array.from(
+    new Map(
+      skills
+        .map((s) => s.category?.trim())
+        .filter(Boolean)
+        .map((cat) => [cat.toLowerCase(), cat])
+    ).values()
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const payload = {
+      name: form.name.trim(),
+      category: form.category.trim(),
+      proficiency: form.proficiency.trim(),
+    };
     try {
       if (editingId) {
-        await API.put(`/skills/${editingId}`, form);
+        await API.put(`/skills/${editingId}`, payload);
       } else {
-        await API.post('/skills', form);
+        await API.post('/skills', payload);
       }
       setForm({ name: '', category: '', proficiency: '' });
       setEditingId(null);
@@ -37,7 +52,7 @@ export default function SkillsManager() {
   };
 
   const handleEdit = (skill) => {
-    setForm({ name: skill.name, category: skill.category, proficiency: skill.proficiency });
+    setForm({ name: skill.name || '', category: skill.category || '', proficiency: skill.proficiency || '' });
     setEditingId(skill.id);
   };
 
@@ -63,11 +78,43 @@ export default function SkillsManager() {
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           className="p-2 border rounded" required
         />
-        <input
-          type="text" placeholder="Category (e.g. Frontend)" value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="p-2 border rounded" required
-        />
+        <div className="flex flex-col gap-1">
+          <input
+            type="text"
+            list="category-list"
+            placeholder="Category (e.g. backend, frontend)"
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            className="p-2 border rounded"
+            required
+          />
+          <datalist id="category-list">
+            {existingCategories.map((cat) => (
+              <option key={cat} value={cat} />
+            ))}
+          </datalist>
+
+          {/* Quick-select chips */}
+          {existingCategories.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+              <span className="text-xs text-gray-500">Existing:</span>
+              {existingCategories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setForm({ ...form, category: cat })}
+                  className={`text-xs px-2 py-0.5 rounded border transition ${
+                    form.category.trim().toLowerCase() === cat.toLowerCase()
+                      ? 'bg-blue-600 text-white border-blue-600 font-semibold'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <input
           type="text" placeholder="Proficiency (e.g. Advanced)" value={form.proficiency}
           onChange={(e) => setForm({ ...form, proficiency: e.target.value })}

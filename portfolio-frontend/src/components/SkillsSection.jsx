@@ -4,12 +4,23 @@ import { Code, Server, Database, Cloud, Layout, CheckCircle2, Sparkles } from 'l
 export default function SkillsSection({ skills = [] }) {
   const [activeCategory, setActiveCategory] = useState('All');
 
-  // Extract unique categories directly from CMS skills
-  const categories = ['All', ...new Set(skills.map(s => s.category).filter(Boolean))];
+  // Extract unique categories directly from CMS skills, normalized case-insensitively
+  const categoryMap = new Map();
+  skills.forEach(s => {
+    if (s.category && s.category.trim()) {
+      const trimmed = s.category.trim();
+      const lower = trimmed.toLowerCase();
+      if (!categoryMap.has(lower)) {
+        categoryMap.set(lower, trimmed);
+      }
+    }
+  });
+
+  const categories = ['All', ...Array.from(categoryMap.values())];
 
   const filteredSkills = activeCategory === 'All' 
     ? skills 
-    : skills.filter(s => s.category === activeCategory);
+    : skills.filter(s => s.category && s.category.trim().toLowerCase() === activeCategory.trim().toLowerCase());
 
   const getCategoryIcon = (category) => {
     switch (category?.toLowerCase()) {
@@ -57,7 +68,7 @@ export default function SkillsSection({ skills = [] }) {
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
-                  activeCategory === cat
+                  activeCategory.toLowerCase() === cat.toLowerCase()
                     ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-lg shadow-amber-500/25 scale-105'
                     : 'bg-slate-900/80 text-slate-400 hover:text-white border border-white/10 hover:border-amber-500/30'
                 }`}
